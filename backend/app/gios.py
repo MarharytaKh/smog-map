@@ -45,21 +45,27 @@ def parse_readings(raw: dict) -> list[tuple[datetime, float]]:
 
 
 class GiosClient:
-    def __init__(self, client: httpx.AsyncClient | None = None, concurrency: int = 4):
+    def __init__(self, client: httpx.AsyncClient | None = None, concurrency: int = 3):
         self.client = client or httpx.AsyncClient(base_url=BASE_URL, timeout=30)
         self.sem = asyncio.Semaphore(concurrency)
 
     async def _get(self, path: str, **params):
         async with self.sem:
-            for attempt in range(3):
-                r = await self.client.get(path, params=params or None)
-                if r.status_code == 429:
+            for attempt in range(4):
+                try:
+                    r = await self.client.get(path, params=params or None)
+                except httpx.TransportError as e:
+                    log.info("gios %s failed (%s), retry %s", path, type(e).__name__, attempt + 1)
+                    await asyncio.sleep(3 * (attempt + 1))
+                    continue
+                if r.status_code in (429, 502, 503, 504):
                     await asyncio.sleep(5 * (attempt + 1))
                     continue
                 if r.status_code >= 400:
-                    log.warning("gios %s -> %s", path, r.status_code)
+                    log.debug("gios %s -> %s", path, r.status_code)
                     return {}
                 return r.json()
+        log.warning("gios %s gave up", path)
         return {}
 
     async def stations(self) -> list[dict]:
