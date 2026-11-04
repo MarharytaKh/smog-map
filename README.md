@@ -4,22 +4,22 @@ Every winter in Poland the air gets bad and checking it means opening the GIOŚ 
 
 Data comes from the public GIOŚ API and gets refreshed every hour.
 
-![map](docs/map.png)
+![map](map.png)
 
 ## What's in it
 
 - map of all stations, the darker the dot the worse the air (black and white on purpose)
 - worst and cleanest cities right now
 
-  <img src="docs/ranking.png" width="320" alt="ranking">
+  <img src="ranking.png" width="320" alt="ranking">
 
 - city page with current PM2.5 / PM10 / NO₂, a 7 day chart and a table of stations
 
-  ![city page](docs/city.png)
+  ![city page](city.png)
 
 - comparing two cities over the week
 
-  ![compare](docs/compare.png)
+  ![compare](compare.png)
 
 - email alerts: pick a spot on the map, a radius and a limit, you get an email when PM2.5 nearby goes above it (max once every 6h)
 
